@@ -29,6 +29,12 @@ contract Ballot {
     // A dynamically-sized array of `Proposal` structs.
     Proposal[] public proposals;
 
+    
+    enum VoteStates { Created, Active, Ended }
+
+    VoteStates state;
+    VoteStates constant defaultState = VoteStates.Created;
+
     /// Create new ballot to chose one of 'proposalNames'.
     constructor(bytes32[] memory proposalNames) {
         chairperson = msg.sender;
@@ -40,6 +46,30 @@ contract Ballot {
         for (uint i = 0; i < proposalNames.length; i++) {
             proposals.push(Proposal({name: proposalNames[i], voteCount: 0}));
         }
+
+        state = defaultState;
+    }
+
+    function startVoting() external {
+        require(
+            msg.sender == chairperson,
+            "Only chairperson start voting."
+        );
+
+        state = VoteStates.Active;
+    }
+
+    function endVoting() external {
+        require(
+            msg.sender == chairperson,
+            "Only chairperson end voting."
+        );
+
+        state = VoteStates.Ended;
+    }
+
+    function isVotingActive() public view returns (bool isActive) {
+        isActive = state == VoteStates.Active;
     }
 
     // Give 'voter' right to vite on this ballot.
@@ -117,6 +147,7 @@ contract Ballot {
         Voter storage sender = voters[msg.sender];
         require(sender.weight != 0, "Has no right to vote.");
         require(!sender.voted, "Already voted.");
+        require(isVotingActive(), "Voting should be Active");
 
         sender.voted = true;
         sender.vote = proposal;

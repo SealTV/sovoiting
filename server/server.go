@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -8,6 +9,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
+
+type Serviser interface {
+	CreateVote(ctx context.Context, voteID, ownerAddres string, names []string) (string, error)
+	AddVoter(ctx context.Context, voteID, voterAddres string) error
+	DelegateVote(ctx context.Context, voteID, voter, to string) error
+	Vote(ctx context.Context, voteID, viterAddres string, proposalID uint) error
+
+	GetProposalse(ctx context.Context, voteID string) ([]string, error)
+	GetWinnerName(ctx context.Context, voteID string) (string, error)
+}
 
 type Server struct{}
 
