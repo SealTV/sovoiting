@@ -32,8 +32,9 @@ func main() {
 	log.Println(nID.Int64())
 
 	srv := http.Server{
-		Addr:    ":8080",
-		Handler: server.New().GetHttpHAndler(),
+		Addr: ":8080",
+		// TODO: add service instance here
+		Handler: server.New(nil).GetHttpHAndler(),
 	}
 
 	go func() {

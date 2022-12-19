@@ -5,10 +5,13 @@ go 1.19
 require (
 	github.com/ethereum/go-ethereum v1.10.24-0.20221215125207-f53ff0ff4a68
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-chi/render v1.0.2
+	github.com/golang/mock v1.6.0
 )
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/deckarep/golang-set/v2 v2.1.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
