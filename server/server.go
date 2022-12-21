@@ -1,15 +1,16 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
 )
 
 type Serviser interface {
@@ -68,20 +69,51 @@ func (s *Server) createVoting(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&req); err != nil {
-		http.Error(w, "Invalid request data", http.StatusBadRequest)
+		JSONError(w, http.StatusBadRequest, errors.New("Invalid request data"))
 		return
 	}
 	defer r.Body.Close()
 
 	voteID, err := s.svc.CreateVote(r.Context(), req.OwnerAddress, req.Names)
 	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		JSONError(w, http.StatusInternalServerError, errors.New("Internal server error"))
 		return
 	}
 
-	result := map[string]any{
+	JSON(w, voteID)
+}
+
+// JSON marshals 'v' to JSON, automatically escaping HTML and setting the
+// Content-Type as application/json.
+func JSON(w http.ResponseWriter, data any) {
+	respData := map[string]any{
 		"status": http.StatusOK,
-		"data":   voteID,
+		"data":   data,
 	}
-	render.JSON(w, r, result)
+	jsonResp(w, http.StatusOK, respData)
+}
+
+// JSON marshals 'v' to JSON, automatically escaping HTML and setting the
+// Content-Type as application/json.
+func JSONError(w http.ResponseWriter, status int, err error) {
+	data := map[string]any{
+		"status": status,
+		"error":  err.Error(),
+	}
+	jsonResp(w, status, data)
+}
+
+func jsonResp(w http.ResponseWriter, status int, data any) {
+	buf := &bytes.Buffer{}
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(true)
+	if err := enc.Encode(data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(status)
+
+	w.Write(buf.Bytes()) //nolint:errcheck
 }
