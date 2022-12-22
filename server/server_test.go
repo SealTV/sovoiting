@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -89,6 +90,52 @@ func TestServer_createVoting(t *testing.T) {
 			assert.Nil(t, err)
 
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestServer_addVoter(t *testing.T) {
+	const voteID = "some_vote_id"
+
+	tests := []struct {
+		name    string
+		data    []byte
+		prepare func(svc *mocks.MockServiser)
+		// want     response
+		wantCode int
+	}{
+		{
+			"1. success add new voter",
+			[]byte(`{"voter":"some_voter_id"}`),
+			func(svc *mocks.MockServiser) {
+				svc.EXPECT().AddVoter(gomock.Any(), voteID, "some_voter_id").Return(nil)
+			},
+			http.StatusAccepted,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			svc := mocks.NewMockServiser(ctrl)
+			tt.prepare(svc)
+
+			recorder := httptest.NewRecorder()
+
+			buffer := bytes.NewBuffer(tt.data)
+			req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/v1/voting/%s", voteID), buffer)
+
+			New(svc).GetHttpHAndler().ServeHTTP(recorder, req)
+
+			resp := recorder.Result()
+			assert.Equal(t, tt.wantCode, resp.StatusCode)
+
+			// got := response{}
+			// err := json.NewDecoder(resp.Body).Decode(&got)
+			// assert.Nil(t, err)
+
+			// assert.Equal(t, tt.want, got)
 		})
 	}
 }

@@ -17,9 +17,9 @@ type Serviser interface {
 	CreateVote(ctx context.Context, ownerAddres string, names []string) (string, error)
 	AddVoter(ctx context.Context, voteID, voterAddres string) error
 	DelegateVote(ctx context.Context, voteID, voter, to string) error
-	Vote(ctx context.Context, voteID, viterAddres string, proposalID uint) error
+	Vote(ctx context.Context, voteID, voterAddres string, proposalID uint) error
 
-	GetProposalse(ctx context.Context, voteID string) ([]string, error)
+	GetProposals(ctx context.Context, voteID string) ([]string, error)
 	GetWinnerName(ctx context.Context, voteID string) (string, error)
 }
 
@@ -51,6 +51,14 @@ func (s *Server) GetHttpHAndler() http.Handler {
 
 		r.Route("/voting", func(r chi.Router) {
 			r.Post("/", s.createVoting)
+
+			// add_voter
+			r.Put("/{voteID}", s.addVoter)
+			// delegate_vote
+			// vote
+
+			// get proposals
+			// get winner name
 		})
 	})
 
@@ -81,6 +89,28 @@ func (s *Server) createVoting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	JSON(w, voteID)
+}
+
+func (s *Server) addVoter(w http.ResponseWriter, r *http.Request) {
+	voteID := chi.URLParam(r, "voteID")
+
+	req := struct {
+		Voter string `json:"voter"`
+	}{}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&req); err != nil {
+		JSONError(w, http.StatusBadRequest, errors.New("Invalid request data"))
+		return
+	}
+	defer r.Body.Close()
+
+	if err := s.svc.AddVoter(r.Context(), voteID, req.Voter); err != nil {
+		JSONError(w, http.StatusInternalServerError, errors.New("Internal server error"))
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
 }
 
 // JSON marshals 'v' to JSON, automatically escaping HTML and setting the

@@ -77,19 +77,19 @@ func (mr *MockServiserMockRecorder) DelegateVote(ctx, voteID, voter, to interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DelegateVote", reflect.TypeOf((*MockServiser)(nil).DelegateVote), ctx, voteID, voter, to)
 }
 
-// GetProposalse mocks base method.
-func (m *MockServiser) GetProposalse(ctx context.Context, voteID string) ([]string, error) {
+// GetProposals mocks base method.
+func (m *MockServiser) GetProposals(ctx context.Context, voteID string) ([]string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProposalse", ctx, voteID)
+	ret := m.ctrl.Call(m, "GetProposals", ctx, voteID)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetProposalse indicates an expected call of GetProposalse.
-func (mr *MockServiserMockRecorder) GetProposalse(ctx, voteID interface{}) *gomock.Call {
+// GetProposals indicates an expected call of GetProposals.
+func (mr *MockServiserMockRecorder) GetProposals(ctx, voteID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProposalse", reflect.TypeOf((*MockServiser)(nil).GetProposalse), ctx, voteID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProposals", reflect.TypeOf((*MockServiser)(nil).GetProposals), ctx, voteID)
 }
 
 // GetWinnerName mocks base method.
@@ -108,15 +108,15 @@ func (mr *MockServiserMockRecorder) GetWinnerName(ctx, voteID interface{}) *gomo
 }
 
 // Vote mocks base method.
-func (m *MockServiser) Vote(ctx context.Context, voteID, viterAddres string, proposalID uint) error {
+func (m *MockServiser) Vote(ctx context.Context, voteID, voterAddres string, proposalID uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Vote", ctx, voteID, viterAddres, proposalID)
+	ret := m.ctrl.Call(m, "Vote", ctx, voteID, voterAddres, proposalID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Vote indicates an expected call of Vote.
-func (mr *MockServiserMockRecorder) Vote(ctx, voteID, viterAddres, proposalID interface{}) *gomock.Call {
+func (mr *MockServiserMockRecorder) Vote(ctx, voteID, voterAddres, proposalID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Vote", reflect.TypeOf((*MockServiser)(nil).Vote), ctx, voteID, viterAddres, proposalID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Vote", reflect.TypeOf((*MockServiser)(nil).Vote), ctx, voteID, voterAddres, proposalID)
 }
