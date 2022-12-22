@@ -98,10 +98,9 @@ func TestServer_addVoter(t *testing.T) {
 	const voteID = "some_vote_id"
 
 	tests := []struct {
-		name    string
-		data    []byte
-		prepare func(svc *mocks.MockServiser)
-		// want     response
+		name     string
+		data     []byte
+		prepare  func(svc *mocks.MockServiser)
 		wantCode int
 	}{
 		{
@@ -111,6 +110,20 @@ func TestServer_addVoter(t *testing.T) {
 				svc.EXPECT().AddVoter(gomock.Any(), voteID, "some_voter_id").Return(nil)
 			},
 			http.StatusAccepted,
+		},
+		{
+			"2. error on add voter",
+			[]byte(`{"voter":"some_voter_id"}`),
+			func(svc *mocks.MockServiser) {
+				svc.EXPECT().AddVoter(gomock.Any(), voteID, "some_voter_id").Return(errors.New("some error"))
+			},
+			http.StatusInternalServerError,
+		},
+		{
+			"3. inavalid input data",
+			[]byte(`{invalid json}`),
+			func(svc *mocks.MockServiser) {},
+			http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
@@ -130,12 +143,6 @@ func TestServer_addVoter(t *testing.T) {
 
 			resp := recorder.Result()
 			assert.Equal(t, tt.wantCode, resp.StatusCode)
-
-			// got := response{}
-			// err := json.NewDecoder(resp.Body).Decode(&got)
-			// assert.Nil(t, err)
-
-			// assert.Equal(t, tt.want, got)
 		})
 	}
 }
